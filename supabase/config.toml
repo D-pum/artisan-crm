@@ -1,0 +1,5 @@
+project_id = "artisan-business-desk"
+
+[functions.team-admin]
+# The function verifies the user through Auth and checks the live admin membership itself.
+verify_jwt = false

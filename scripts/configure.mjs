@@ -1,0 +1,11 @@
+import { writeFile } from 'node:fs/promises';
+import { createInterface } from 'node:readline/promises';
+const prompt=createInterface({input:process.stdin,output:process.stdout});
+const supabaseUrl=(await prompt.question('Supabase project URL: ')).trim().replace(/\/$/,'');
+const publishableKey=(await prompt.question('Public publishable key (never the service-role/secret key): ')).trim();
+prompt.close();
+if(!/^https:\/\/[a-z0-9-]+\.supabase\.co$/.test(supabaseUrl)||!publishableKey)throw Error('Invalid public configuration.');
+if(publishableKey.startsWith('sb_secret_'))throw Error('Use a public publishable key.');
+if(publishableKey.startsWith('eyJ')&&JSON.parse(Buffer.from(publishableKey.split('.')[1],'base64url')).role==='service_role')throw Error('Use a public key, not a service role.');
+await writeFile(new URL('../web/config.js',import.meta.url),'window.ARTISAN_CONFIG = Object.freeze('+JSON.stringify({supabaseUrl,publishableKey},null,2)+');\n');
+console.log('Public configuration saved.');
