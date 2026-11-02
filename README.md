@@ -4,7 +4,7 @@ A GitHub Pages frontend with Supabase Auth, PostgreSQL and private Storage. This
 
 ## Current status
 
-Supabase project `artisan-crm` (`ernedfqavibltbdqadgm`, Mumbai) is provisioned with the initial schema, private file bucket and active team-admin Edge Function. Public frontend configuration is present. GitHub publication and the first admin login are still pending; no team accounts exist yet. See DEPLOYMENT.md for the exact checkpoint.
+Supabase project `artisan-crm` (`ernedfqavibltbdqadgm`, Mumbai) is provisioned with the initial schema, private file bucket and active team-admin Edge Function. Public frontend configuration is present. The source and GitHub Pages app are published; the first admin login is awaiting user password setup. See DEPLOYMENT.md for the exact checkpoint.
 
 ### Included
 
@@ -17,7 +17,7 @@ Supabase project `artisan-crm` (`ernedfqavibltbdqadgm`, Mumbai) is provisioned w
 - Task deadlines, owners, priorities, blockers, completion notes and server-attributed history.
 - Private proposal, drawing and proof uploads: PDF, PPTX, XLSX, JPEG, PNG and WebP; 10 MB per file, 25 files per record.
 - PDF/Excel quotations, task/history Excel, JSON backup and admin restore.
-- GitHub Pages workflow that runs checks and tests before publishing only `web/`.
+- GitHub Pages workflow that runs checks and tests before publishing only `web/`. The live app is https://d-pum.github.io/artisan-crm/.
 
 The accounting expansion (invoices, purchase ledger, inventory and GST returns) is outside this release. Account permissions are deliberately simple: the admin edits sales/commercial records; staff update assigned work. Expand these when actual roles are confirmed.
 
@@ -39,9 +39,13 @@ The schema creates RLS-protected tables, private privileged functions, restricte
 
 ### 2. First admin
 
-Run `python3 scripts/bootstrap-admin.py` locally. It asks for the project URL, hidden server key, admin email/name and hidden initial password. It refuses to change a workspace that already has members. It does not save the server key or password.
+The current rollout uses verified self-setup. The provisioning migration `supabase/admin-setup.sql` adds a one-time admin claim; the approved email is stored privately in the database, not in Git. This migration has already been applied to the rollout project.
 
-Alternatively, create the first Auth user in the Supabase dashboard and insert their UUID/email/name into `public.crm_members` with role `admin` using a trusted SQL session. The admin identity must be explicitly selected; there is no public “claim admin” endpoint.
+Open the live app, click **First admin setup**, enter the approved email and choose a separate CRM password. Confirm the email, then sign in. The database checks the authenticated user ID, the exact approved email and the Auth email-confirmation timestamp before creating the single admin membership. Other accounts cannot claim admin. The setup route stops being available after the admin is created.
+
+Keep Auth email confirmation enabled while using this setup. The live project was checked for this setting. After setup, disable public signup in Supabase Auth; the admin creates staff logins through **Team & access**. Configure the final Site URL and redirect allowlist before requesting verification mail.
+
+The optional `scripts/bootstrap-admin.py` remains a trusted local fallback when provisioning a separate installation; it asks for a hidden server key and password, saves neither, and refuses to alter an existing team.
 
 ### 3. Team management function
 

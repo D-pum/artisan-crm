@@ -3,7 +3,7 @@ import vm from 'node:vm';
 const root=new URL('../',import.meta.url);
 const html=await readFile(new URL('web/index.html',root),'utf8');
 for(const [,script] of html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi))if(script.trim())new vm.Script(script);
-for(const name of ['cloud.js','config.js'])new vm.Script(await readFile(new URL('web/'+name,root),'utf8'));
+for(const name of ['cloud.js','admin-setup.js','config.js'])new vm.Script(await readFile(new URL('web/'+name,root),'utf8'));
 const files=await readdir(new URL('web/',root));if(files.some(f=>f.startsWith('qa-')))throw Error('Remove QA fixtures before publishing.');
 const config=await readFile(new URL('web/config.js',root),'utf8');const ctx=vm.createContext({window:{}});vm.runInContext(config,ctx);const c=ctx.window.ARTISAN_CONFIG;
 if(c.publishableKey?.startsWith('sb_secret_'))throw Error('Server secret in browser configuration!');

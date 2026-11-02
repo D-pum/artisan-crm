@@ -1,6 +1,6 @@
 const vm=require('vm'),fs=require('fs'),assert=require('assert/strict');
 const html=fs.readFileSync(require('path').join(__dirname,'../web/index.html'),'utf8');
-let script=[...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)].map(m=>m[1]).filter(s=>s.trim()).at(-1).replace(/init\(\);\s*$/,'');
+let script=[...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/gi)].map(m=>m[1]).filter(s=>s.includes('const defaults=()=>')).at(-1).replace(/init\(\);\s*$/,'');
 let nodes={};
 const ctx=vm.createContext({console,Date,Intl,Math,Number,String,Set,Array,Object,JSON,Error,Promise,Boolean,structuredClone,crypto:require('crypto').webcrypto,localStorage:{getItem:()=>null,setItem:()=>{}},document:{querySelector:s=>nodes[s]||null,querySelectorAll:()=>[],addEventListener:()=>{}},window:{addEventListener:()=>{},ArtisanTheme:{button:()=>''}},setTimeout:()=>0,clearTimeout:()=>{},FormData:class{constructor(f){this.f=f}*[Symbol.iterator](){yield* Object.entries(this.f.data)}},Blob,URL});
 vm.runInContext(script,ctx);
